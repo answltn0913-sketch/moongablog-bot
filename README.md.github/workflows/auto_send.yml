@@ -2,8 +2,8 @@ name: 24h Blog Auto Mailer
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 매일 오전 9시 자동 정기 발송
-  workflow_dispatch:      # 수동 즉시 발송 버튼 활성화
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   run-blog-bot:
@@ -16,6 +16,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+
+      - name: 필수 패키지 설치
+        run: |
+          pip install google-generativeai
 
       - name: 3대 블로그 패키지 생성 및 메일 발송
         env:

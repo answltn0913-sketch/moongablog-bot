@@ -1,3 +1,12 @@
+import sys
+import subprocess
+
+try:
+    import google.generativeai as genai
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "google-generativeai"])
+    import google.generativeai as genai
+
 import os
 import json
 import random
@@ -8,9 +17,8 @@ from email.header import Header
 import xml.etree.ElementTree as ET
 import urllib.request
 import urllib.parse
-import google.generativeai as genai
 
-GEMINI_API_KEY = (os.environ.get("GEMINI_KEY") or os.environ.get("GEMINI_API_KEY", "")).strip()
+GEMINI_API_KEY = (os.environ.get("GEMINI_KEY") or os.environ.get("GEMINI_API_KEY") or "").strip()
 EMAIL_SENDER = "answltn0913@gmail.com"
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD", "").strip()
 EMAIL_RECEIVER = "answltn0913@gmail.com"
@@ -49,18 +57,18 @@ def fetch_current_hot_trend():
 
 def generate_expert_package(category: str, topic: str) -> dict:
     if not GEMINI_API_KEY:
-        raise ValueError("GEMINI_KEY가 설정되지 않았습니다.")
+        raise ValueError("GEMINI_KEY가 비어있습니다. GitHub Secrets를 확인하세요.")
 
     genai.configure(api_key=GEMINI_API_KEY)
 
     prompt = f"""
-    당신은 대한민국 최상위 블로그 콘텐츠 전문가입니다.
+    당신은 대한민국 최상위 공공·금융 데이터 팩트체커이자 지식 멘토입니다.
     분야: [{category}], 주제: '{topic}'
 
-    - 100% 팩트 기반 검증 내용 작성
-    - 쉬운 눈높이와 1~2줄 단위 줄바꿈
+    - 지어낸 숫자 절대 금지 (100% 팩트 기반 정밀 수치)
+    - 쉬운 눈높이와 모바일 맞춤 1~2줄 단위 줄바꿈
 
-    반드시 아래 순수 JSON 포맷으로만 응답하세요:
+    반드시 마크다운 기호 없이 순수 JSON 포맷으로만 응답하세요:
     {{
       "naver_title": "네이버 블로그 제목",
       "naver_body": "네이버 블로그 본문 (1~2줄 분절)",
@@ -85,11 +93,11 @@ def generate_expert_package(category: str, topic: str) -> dict:
 
 def main():
     category, topic = fetch_current_hot_trend()
-    print(f"🔥 [{category}] 팩트 기반 원고 생성 시작: {topic}")
+    print(f"🔥 [{category}] 원고 생성 시작: {topic}")
     post = generate_expert_package(category, topic)
 
     mail_body = f"""================================================================================
-문가장의 지식 네비게이션 원고 패키지
+문가장의 지식 네비게이션: 팩트 기반 전문 원고 패키지
 [카테고리: {category}]
 주제: {topic}
 ================================================================================

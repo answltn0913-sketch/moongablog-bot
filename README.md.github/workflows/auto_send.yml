@@ -1,0 +1,25 @@
+name: 24h Blog Auto Mailer
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 매일 오전 9시 자동 정기 발송
+  workflow_dispatch:      # 수동 즉시 발송 버튼 활성화
+
+jobs:
+  run-blog-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 코드 가져오기
+        uses: actions/checkout@v4
+
+      - name: 파이썬 환경 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: 3대 블로그 패키지 생성 및 메일 발송
+        env:
+          GEMINI_KEY: ${{ secrets.GEMINI_KEY }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+        run: |
+          python main.py
